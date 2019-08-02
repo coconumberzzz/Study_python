@@ -7,13 +7,13 @@ app.debug=True
 def tutee_signup():
     return render_template("signup.html")
 
-@app.route("/signup_succeess",methods=["POST","GET"])
-def tuteesignup():
-    error = None
+@app.route("/signup_success",methods=["POST","GET"])
+def signup_success():
+    #error = None
 
-    if request.methods=="POST":
+    if request.method=="POST":
 
-        id=request.form["id"]
+        id_=request.form["id"]
         pw=request.form["pw"]
         email=request.form["email"]
         mac=request.form["mac"]
@@ -33,12 +33,13 @@ def tuteesignup():
         data=(cursor.fetchall())
         
         if data :
-            error = "The email is already used. please use another one"
+            return "The email is already used. please use another one"
         else:
-            query = "INSERT INTO user_table (id, email, pw, mac) values (%s, %s, %s,%s)"
-            value = (id, email, pw, mac)
+            query = "INSERT INTO tutee_info(id, email, pw, mac) values (%s, %s, %s,%s)"
+            value = (id_, email, pw, mac)
+
             cursor.execute(query, value)
-            data = cursor.fetchall()
+            data = (cursor.fetchall())
 
             if not data:
                 conn.commit()
@@ -53,14 +54,3 @@ def tuteesignup():
 
     #return render_template('.html', error=error)
     #에러페이지
-
-
-    else :
-        id=request.args.get("id")
-        pw=request.args.get("pw")
-        email=request.args.get("email")
-        mac=request.args.get("mac")
-        return """sign_up succeed\n
-            id = %s\n
-            pw = %s\nemail = %s
-            mac = %s """%(id,pw,email,mac)

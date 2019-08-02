@@ -12,7 +12,7 @@
     <script>
       $(document).ready(function () {
     $(function () {
-            $('.phone').keydown(function (event) {
+            $('.mac').keydown(function (event) {
              var key = event.charCode || event.keyCode || 0;
              $text = $(this);
              if (key !== 8 && key !== 9) {
@@ -30,24 +30,24 @@
     </script>
   </head>
   <body>
-    <form class="signup" action="login.html" method="post">
-        <input type="text"class="id" placeholder="ID">
-        <input type="password" class="pw" placeholder="Password">
-        <input type="email" class="email" placeholder="E-Mail">
-        <input type="text" maxlength="13" class="phone" placeholder="Phone Number"><br>
-        <button type="button" class="check" name="button" placeholder="Check">Check</button>
+    <form class="signup" action="https://192.168.88.138:5000/signup_success" method="POST">
+        <input type="text" name="id" placeholder="ID">
+        <input type="password" name="pw" placeholder="Password">
+        <input type="email" name="email" placeholder="E-Mail">
+        <input type="text" name="mac" placeholder="Mac_Address">
+        <input type="submit" name="check" value="signup">
         <script>
           $('.check').click(function(){
             var id = document.getElementsByClassName('id');
             var pw = document.getElementsByClassName('pw');
             var email = document.getElementsByClassName('email');
-            var phone = document.getElementsByClassName('phone');
+            var mac = document.getElementsByClassName('mac');
 
-            create(id,pw,email,phone,function(err,res){
+            create(id,pw,email,mac,function(err,res){
                 window.replace('#')
             })
           })
-          function create(id,pw,email,phone,callback){
+          function create(id,pw,email,mac,callback){
             return new Promise((resovle, reject) => {
               $.ajax({
                 url:'signup.html',
@@ -56,7 +56,7 @@
                   id:id,
                   pw:pw,
                   email:email,
-                  phone:phone
+                  mac:mac
                 },
                 dataType:'text',
                 success:(res)=>{
