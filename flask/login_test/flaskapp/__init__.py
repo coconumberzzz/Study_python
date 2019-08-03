@@ -36,12 +36,12 @@ def login_up():
         for row in data:
             data=row[0]
         if data:
-            return data
+            return 'login success!!!!'
         else:
             return 'None Data!!!!!!!!!'
 
     else :
         email=request.args.get("email")
         pw=request.args.get("pw")
-        return "login \n phone number is %s \n pw is %s"%(email, pw)
+        return "login \n email is %s \n pw is %s"%(email, pw)
 
