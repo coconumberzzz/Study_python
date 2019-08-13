@@ -24,18 +24,28 @@ def tutor_lecture():
     cursor.execute(query)
     data2=(cursor.fetchall())
 
+    query="SELECT CLASS_INFO.CLASS_NAME, CLASS_INFO.CLASS_TIME, CLASS_INFO, CLASS_ROOM,ATTENDANCE.DATE FROM CLASS_INFO,ATTENDANCE,TUTOR_INFO,TUTEE_CLASS_MAPPING WHERE ATTENDANCE.MAPPING_ID = TUTEE_CLASS_MAPPING.MAPPING_ID AND CLASS_INFO.CLASS_ID=TUTEE_CLASS_MAPPING.CLASS_ID AND CLASS_INFO.TUTOR_ID=TUTOR_INFO.TUTOR_ID"
+    
+    cursor.execute(query)
+    data3=(cursor.fetchall())
+
     cursor.close()
     db.close()
 
-    datalist=[]       #튜터마이페이지>강의리스트
+    datalist=[]       
     for row in data:
-        if row :  #튜터 마페, 강의목록
+        if row :  #튜터마이페이지 > 강의목록
             dic={'CLASS_INFO.CLASS_NAME':row[0:]}
             datalist.append(dic)
 
     for row in data2:
-        if row : 
+        if row :  #튜터마이페이지 > 학생목록
             dic={'TUTEE_INFO.NAME':row[0:],'ATTENDANCE.PASS_TIME':row[0:],'ATTENDANCE.STATUS':row[0:]}
+            datalist.append(dic)
+    
+    for row in data3:
+        if row :  #튜터마이페이지 > 캘린더
+            dic={'CLASS_INFO.CLASS_NAME':row[0:],'CLASS_INFO.CLASS_TIME':row[0:],'CLASS_INFO.CLASS_ROOM':row[0:],'ATTENDANCE.DATA':row[0:]}
             datalist.append(dic)
 
     return json.dumps(datalist)
