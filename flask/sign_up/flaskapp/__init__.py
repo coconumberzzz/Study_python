@@ -19,14 +19,14 @@ def signup_success():
         mac=request.form["mac"]
 
         conn = pymysql.connect(host='127.0.0.1',
-                port=3306,
-                user='admin',
-                passwd='0507',
-                db='attendance',
-                charset='utf8')
+            port=3306,
+            user='admin',
+            passwd='0507',
+            db='attendance',
+            charset='utf8')
 
         cursor = conn.cursor()
-        query = "SELECT 1 FROM tutee_info WHERE email=%s AND pw=%s;"%(email,pw)
+        query = "SELECT name FROM tutee_info WHERE email=%s AND pw=%s;"%(email,pw)
         #value =(email,pw)
 
         cursor.execute(query)

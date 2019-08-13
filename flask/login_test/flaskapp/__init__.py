@@ -44,4 +44,3 @@ def login_up():
         email=request.args.get("email")
         pw=request.args.get("pw")
         return "login \n email is %s \n pw is %s"%(email, pw)
-
