@@ -30,9 +30,17 @@ def tutor_lecture():
     data3=(cursor.fetchall())
 
     #튜터>출결현황그래프
-    query = "SELECT COUNT(STATUS) FROM ATTENDANCE WHERE STATUS = 'PASS' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID; "
+    query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'pass~~' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID; "
     cursor.execute(query)
     data4=(cursor.fetchall())
+
+    query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'LATE' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID;"
+    cursor.execute(query)
+    data5=(cursor.fetchall())
+
+    query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'FAIL' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID;"
+    cursor.execute(query)
+    data6=(cursor.fetchall())
 
     cursor.close()
     db.close()
@@ -45,11 +53,7 @@ def tutor_lecture():
 
     for row in data2:
         if row :  #튜터마이페이지 > 학생목록
-            dic={'TUTEE_INFO.NAME':row[0:]}
-            datalist.append(dic)
-            dic={'ATTENDANCE.PASS_TIME':row[0:]}
-            datalist.append(dic)
-            dic={'ATTENDANCE.STATUS':row[0:]}
+            dic={'TUTEE_INFO.NAME':row[0:],'ATTENDANCE.PASS_TIME':row[0:],'ATTENDANCE.STATUS':row[0:]}
             datalist.append(dic)
     
     for row in data3:
@@ -57,9 +61,19 @@ def tutor_lecture():
             dic={'CLASS_INFO.CLASS_NAME':row[0:],'CLASS_INFO.CLASS_TIME':row[0:],'CLASS_INFO.CLASS_ROOM':row[0:],'ATTENDANCE.DATE':row[0:]}
             datalist.append(dic)
 
-    if row in data4:  #튜터마이페이지 > 출결현황(그래프)
-        dic={'COUNT(STATUS)':row[0]}
-        datalist.append(dic)
+    for row in data4:  #튜터마이페이지 > 출결현황(출석)
+        if row :
+          dic={'COUNT(STATUS)':row[0]}
+          datalist.append(dic)
 
+    for row in data5:  #튜터마이페이지 > 출결현황(지각)
+        if row :
+          dic={'COUNT(STATUS)':row[0]}
+          datalist.append(dic)
+
+    for row in data6:  #튜터마이페이지 > 출결현황(결석)
+        if row :
+          dic={'COUNT(STATUS)':row[0]}
+          datalist.append(dic)          
     return json.dumps(datalist)
 
