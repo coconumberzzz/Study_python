@@ -90,9 +90,6 @@ def tutee_lecture():
     query = "SELECT CLASS_INFO.CLASS_NAME FROM CLASS_INFO,TUTEE_INFO,TUTEE_CLASS_MAPPING WHERE TUTEE_INFO.TUTEE_ID=TUTEE_CLASS_MAPPING.TUTEE_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID;"
     cursor.execute(query)
     data=(cursor.fetchall())
-    
-    cursor.close()
-    db.close()
 
     datalist=[]       
     for row in data:
