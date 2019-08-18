@@ -1,59 +1,117 @@
-from flask import Flask, render_template,request,url_for, redirect
+from flask import Flask, render_template,request,url_for, redirect,session,escape
 import pymysql,json
 
 app=Flask(__name__)
 app.debug=True
 @app.route("/tutorMypage",methods=["POST","GET"])
 #_튜터>강의목록
-def tutorLecture():
-    db = pymysql.connect(host='127.0.0.1',
-        port=3306,
-        user='admin',
-        passwd='0507',
-        db='attendance',
-        charset='utf8')
-    cursor=db.cursor()
+def tutorMypage():
+    if 'username' in session:
+        result = '%s'%escape (session['username'])
+        db = pymysql.connect(host='127.0.0.1',
+          port=3306,
+          user='admin',
+          passwd='0507',
+          db='attendance',
+          charset='utf8')
+        cursor=db.cursor()
+        query = "SELECT TUTOR_ID FROM TUTOR_INFO WHERE EMAIL = %s" 
+        value = (result)
+        cursor.execute(query,value)
+        key = (cursor.fetchall())
+        
+        for row in key :
+            if row :
+                key = row[0]
 
-    #튜터>강의목록
-    query = "SELECT CLASS_INFO.CLASS_NAME FROM CLASS_INFO,TUTOR_INFO WHERE TUTOR_INFO.TUTOR_ID=CLASS_INFO.TUTOR_ID;"
-    cursor.execute(query)
-    data=(cursor.fetchall())
-    datalist=[]
-    for row in data:
-        if row :        #튜터마이페이지 > 강의목록
-            dic={'CLASS_INFO.CLASS_NAME':row[0:]}
-            datalist.append(dic)
-    i = json.dumps(dic)
-    loaded_i = json.loads(i)
-    cursor.close()
-    db.close()
-    return loaded_i
+        if key:
+            #튜터>강의목록
+            query = "SELECT CLASS_NAME FROM CLASS_INFO WHEERE TUTOR_ID='1';"
+            #value=(key)
+            cursor.execute(query)
+            data=(cursor.fetchall())
+
+            datalist=[]
+            for row in data:
+                if row :        #튜터마이페이지 > 강의목록
+                    dic={'NAME':row[0:]}
+                    datalist.append(dic)
+            DATA={'CLASS_NAME':'%s'%datalist}
+            i = json.dumps(DATA)
+            loaded_i = json.loads(i)
+            cursor.close()
+            db.close()
+            return loaded_i
+        else : 
+            error = {'error':'error!error!error!'}
+            r = json.dumps(error)
+            loaded_r = json.loads(r)
+            cursor.close()
+            db.close()
+            return loaded_r
+
+    else: #로그인 안됐을때 접근제한 처리
+        error = {'error':'error!error!error!'}
+        r = json.dumps(error)
+        loaded_r = json.loads(r)
+        return loaded_r
+
 
 @app.route("/tutorStudent",methods=["POST","GET"])
 #_튜터>학생목록
 def tutorStudent():
-    db = pymysql.connect(host='127.0.0.1',
-        port=3306,
-        user='admin',
-        passwd='0507',
-        db='attendance',
-        charset='utf8')
-    cursor=db.cursor()
+    if 'username' in session:
+        result = '%s'%escape (session['username'])
+        db = pymysql.connect(host='127.0.0.1',
+          port=3306,
+          user='admin',
+          passwd='0507',
+          db='attendance',
+          charset='utf8')
+        cursor=db.cursor()
+        query = "SELECT TUTOR_ID FROM TUTOR_INFO WHERE EMAIL = %s" 
+        value = (result)
+        cursor.execute(query,value)
+        key = (cursor.fetchall())
+        
+        for row in key :
+            if row :
+                key = row[0]
 
-    #튜터>학생목록
-    query="SELECT TUTEE_INFO.NAME,ATTENDANCE.ENGAGEMENT,ATTENDANCE.STATUS FROM CLASS_INFO,TUTEE_INFO,ATTENDANCE,TUTEE_CLASS_MAPPING WHERE ATTENDANCE.MAPPING_ID = TUTEE_CLASS_MAPPING.MAPPING_ID AND TUTEE_CLASS_MAPPING.TUTEE_ID=TUTEE_INFO.TUTEE_ID AND CLASS_INFO.CLASS_ID=TUTEE_CLASS_MAPPING.CLASS_ID AND CLASS_INFO.CLASS_NAME='linux'"
-    cursor.execute(query)
-    data2=(cursor.fetchall())
-    datalist=[]
-    for row in data2:
-        if row :        #튜터마이페이지 > 학생목록
-            dic={'TUTEE_INFO.NAME':row[0:],'ATTENDANCE.PASS_TIME':row[0:],'ATTENDANCE.STATUS':row[0:]}
-            datalist.append(dic)
-    i = json.dumps(dic)
-    loaded_i = json.loads(i)
-    cursor.close()
-    db.close()
-    return loaded_i
+        if key:
+          #튜터>학생목록
+            query="SELECT TUTEE_INFO.NAME,ENEGAGEMENT,STATUS FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO,TUTEE_INFO WHERE CLASS_INFO.CLASS_ID='1' AND CLASS_INFO.TUTOR_ID='1'AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.TUTEE_ID=TUTEE_INFO.TUTEE_ID"
+            #value=(CALSS_ID받은거,key)
+            cursor.execute(query)
+            data2=(cursor.fetchall())
+            
+            datalist=[]
+
+            for row in data2:
+                if row :        #튜터마이페이지 > 학생목록
+                    dic={'TUTEENAME':row[0:],'ENGAGEMENT':row[0:],'STATUS':row[0:]}
+                    datalist.append(dic)
+            DATA={'STUDENT_NAME':'%s'%datalist}
+            i = json.dumps(DATA)
+            loaded_i = json.loads(i)
+            cursor.close()
+            db.close()
+            return loaded_i
+        else : 
+            error = {'error':'error!error!error!'}
+            r = json.dumps(error)
+            loaded_r = json.loads(r)
+            cursor.close()
+            db.close()
+            return loaded_r
+
+    else: #로그인 안됐을때 접근제한 처리
+        error = {'error':'error!error!error!'}
+        r = json.dumps(error)
+        loaded_r = json.loads(r)
+        return loaded_r
+
+
 
 @app.route("/tutorCalendar",methods=["POST","GET"])
 #_튜터>달력
