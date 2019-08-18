@@ -33,22 +33,32 @@ def tutor_lecture():
     query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'pass~~' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID; "
     cursor.execute(query)
     data4=(cursor.fetchall())
-
     for row in data4:   
         if row :        #튜터마이페이지 > 출결현황(출석)
             dic={'COUNT(STATUS)':row[0]}
             datalist.append(dic)
-
     for row in data4:
       data4=row[0]
 
     query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'LATE' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID;"
     cursor.execute(query)
     data5=(cursor.fetchall())
+    for row in data5:  
+        if row :        #튜터마이페이지 > 출결현황(지각)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
+    for row in data5:
+      data5=row[0]
 
     query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'FAIL' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID;"
     cursor.execute(query)
     data6=(cursor.fetchall())
+    for row in data6:  
+        if row :        #튜터마이페이지 > 출결현황(결석)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
+    for row in data6:
+      data6=row[0]
 
     #튜터>출결현황그래프>총인원
     query = "SELECT COUNT(CLASS_ID) FROM TUTEE_CLASS_MAPPING WHERE TUTEE_CLASS_MAPPING.CLASS_ID='1';"
@@ -59,7 +69,6 @@ def tutor_lecture():
         if row :        #튜터마이페이지 > 출결현황(총인원)
             dic={'COUNT(STATUS)':row[0]}
             datalist.append(dic)
-
     for row in data4:
       data4=row[0]
 
@@ -73,20 +82,28 @@ def tutor_lecture():
     value=(data8)
     cursor.execute(query,value)
     data9=(cursor.fetchall())
-    
-    for row in data9:
-      data9=row[0]
-    data9=(data4/data7)*100
+    percent=(cursor.fetchall())
+    for row in percent:
+      percent=row[0]
+    percent=(float)((data4/data7)*100)
 
     query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING WHERE TUTEE_CLASS_MAPPING.CLASS_ID='1' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND ATTENDANCE.DATE=%s AND ATTENDANCE.STATUS='LATE';"
     value=(data8)
     cursor.execute(query,value)
     data10=(cursor.fetchall())
+    percent2=(cursor.fetchall())
+    for row in percent2:
+      percent2=row[0]
+    percent2=(float)((data5/data7)*100)
 
     query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING WHERE TUTEE_CLASS_MAPPING.CLASS_ID='1' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND ATTENDANCE.DATE=%s AND ATTENDANCE.STATUS='FAIL';"
     value=(data8)
     cursor.execute(query,value)
     data11=(cursor.fetchall())
+    percent3=(cursor.fetchall())
+    for row in percent3:
+      percent3=row[0]
+    percent3=(float)((data6/data7)*100)
 
     cursor.execute
        
@@ -105,30 +122,18 @@ def tutor_lecture():
             dic={'CLASS_INFO.CLASS_NAME':row[0:],'CLASS_INFO.CLASS_TIME':row[0:],'CLASS_INFO.CLASS_ROOM':row[0:],'ATTENDANCE.DATE':row[0:]}
             datalist.append(dic)
 
-
-    for row in data5:  
-        if row :        #튜터마이페이지 > 출결현황(지각)
-            dic={'COUNT(STATUS)':row[0]}
-            datalist.append(dic)
-
-    for row in data6:  
-        if row :        #튜터마이페이지 > 출결현황(결석)
-            dic={'COUNT(STATUS)':row[0]}
-            datalist.append(dic)
-
-
     for row in data9:  
         if row :        #튜터마이페이지 > 출결현황(출석퍼센트)
-            dic={'pass%':row[0]}
+            dic={'pass%':'%s'%percent}
             datalist.append(dic)
 
     for row in data10:  
         if row :        #튜터마이페이지 > 출결현황(지각퍼센트)
-            dic={'late%':row[0]}
+            dic={'late%':'%s'%percent2}
             datalist.append(dic)
     for row in data11:  
         if row :        #튜터마이페이지 > 출결현황(결석퍼센트)
-            dic={'fail%':row[0]}
+            dic={'fail%':'%s'%percent3}
             datalist.append(dic)
             
     cursor.close()
