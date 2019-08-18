@@ -13,7 +13,7 @@ def tutor_lecture():
         db='attendance',
         charset='utf8')
     cursor=db.cursor()
-
+    datalist=[]
     #튜터>강의목록
     query = "SELECT CLASS_INFO.CLASS_NAME FROM CLASS_INFO,TUTOR_INFO WHERE TUTOR_INFO.TUTOR_ID=CLASS_INFO.TUTOR_ID;"
     cursor.execute(query)
@@ -34,6 +34,14 @@ def tutor_lecture():
     cursor.execute(query)
     data4=(cursor.fetchall())
 
+    for row in data4:   
+        if row :        #튜터마이페이지 > 출결현황(출석)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
+
+    for row in data4:
+      data4=row[0]
+
     query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'LATE' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID;"
     cursor.execute(query)
     data5=(cursor.fetchall())
@@ -46,6 +54,14 @@ def tutor_lecture():
     query = "SELECT COUNT(CLASS_ID) FROM TUTEE_CLASS_MAPPING WHERE TUTEE_CLASS_MAPPING.CLASS_ID='1';"
     cursor.execute(query)
     data7=(cursor.fetchall())
+
+    for row in data7:  
+        if row :        #튜터마이페이지 > 출결현황(총인원)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
+
+    for row in data4:
+      data4=row[0]
 
     #튜터>출결현황그래프>날짜(최신,달력)
     query = "SELECT max(DATE) FROM ATTENDANCE WHERE DATE IN (SELECT max(DATE) FROM ATTENDANCE)"
@@ -73,7 +89,7 @@ def tutor_lecture():
     data11=(cursor.fetchall())
 
     cursor.execute
-    datalist=[]       
+       
     for row in data:
         if row :        #튜터마이페이지 > 강의목록
             dic={'CLASS_INFO.CLASS_NAME':row[0:]}
@@ -89,10 +105,6 @@ def tutor_lecture():
             dic={'CLASS_INFO.CLASS_NAME':row[0:],'CLASS_INFO.CLASS_TIME':row[0:],'CLASS_INFO.CLASS_ROOM':row[0:],'ATTENDANCE.DATE':row[0:]}
             datalist.append(dic)
 
-    for row in data4:   
-        if row :        #튜터마이페이지 > 출결현황(출석)
-            dic={'COUNT(STATUS)':row[0]}
-            datalist.append(dic)
 
     for row in data5:  
         if row :        #튜터마이페이지 > 출결현황(지각)
@@ -104,10 +116,6 @@ def tutor_lecture():
             dic={'COUNT(STATUS)':row[0]}
             datalist.append(dic)
 
-    for row in data7:  
-        if row :        #튜터마이페이지 > 출결현황(총인원)
-            dic={'COUNT(STATUS)':row[0]}
-            datalist.append(dic)
 
     for row in data9:  
         if row :        #튜터마이페이지 > 출결현황(출석퍼센트)
