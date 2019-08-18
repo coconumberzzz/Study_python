@@ -3,7 +3,7 @@ import pymysql,json
 
 app=Flask(__name__)
 app.debug=True
-@app.route("/tutor_mypage",methods=["POST","GET"])
+@app.route("/tutorMypage",methods=["POST","GET"])
 #_내 강의목록
 def tutor_lecture():
     db = pymysql.connect(host='127.0.0.1',
@@ -20,12 +20,12 @@ def tutor_lecture():
     data=(cursor.fetchall())
 
     #튜터>학생목록
-    query="SELECT TUTEE_INFO.NAME,ATTENDANCE.PASS_TIME,ATTENDANCE.STATUS FROM CLASS_INFO,TUTEE_INFO,ATTENDANCE,TUTEE_CLASS_MAPPING WHERE ATTENDANCE.MAPPING_ID = TUTEE_CLASS_MAPPING.MAPPING_ID AND TUTEE_CLASS_MAPPING.TUTEE_ID=TUTEE_INFO.TUTEE_ID AND CLASS_INFO.CLASS_ID=TUTEE_CLASS_MAPPING.CLASS_ID AND CLASS_INFO.CLASS_NAME='linux'"
+    query="SELECT TUTEE_INFO.NAME,ATTENDANCE.ENGAGEMENT,ATTENDANCE.STATUS FROM CLASS_INFO,TUTEE_INFO,ATTENDANCE,TUTEE_CLASS_MAPPING WHERE ATTENDANCE.MAPPING_ID = TUTEE_CLASS_MAPPING.MAPPING_ID AND TUTEE_CLASS_MAPPING.TUTEE_ID=TUTEE_INFO.TUTEE_ID AND CLASS_INFO.CLASS_ID=TUTEE_CLASS_MAPPING.CLASS_ID AND CLASS_INFO.CLASS_NAME='linux'"
     cursor.execute(query)
     data2=(cursor.fetchall())
 
     #튜터>달력
-    query="SELECT CLASS_INFO.CLASS_NAME,CLASS_INFO.CLASS_TIME,CLASS_ROOM,ATTENDANCE.DATE FROM CLASS_INFO,ATTENDANCE,TUTOR_INFO,TUTEE_CLASS_MAPPING WHERE ATTENDANCE.MAPPING_ID = TUTEE_CLASS_MAPPING.MAPPING_ID AND CLASS_INFO.CLASS_ID=TUTEE_CLASS_MAPPING.CLASS_ID AND CLASS_INFO.TUTOR_ID=TUTOR_INFO.TUTOR_ID"
+    query="SELECT CLASS_INFO.CLASS_NAME,CLASS_INFO.CLASS_TIME,CLASS_INFO.CLASS_ROOM,ATTENDANCE.DATE FROM CLASS_INFO,ATTENDANCE,TUTOR_INFO,TUTEE_CLASS_MAPPING WHERE ATTENDANCE.MAPPING_ID = TUTEE_CLASS_MAPPING.MAPPING_ID AND CLASS_INFO.CLASS_ID=TUTEE_CLASS_MAPPING.CLASS_ID AND CLASS_INFO.TUTOR_ID=TUTOR_INFO.TUTOR_ID"
     cursor.execute(query)
     data3=(cursor.fetchall())
 
@@ -41,6 +41,15 @@ def tutor_lecture():
     query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE STATUS = 'FAIL' AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID;"
     cursor.execute(query)
     data6=(cursor.fetchall())
+    #c튜터>출결현황그래프>총인원
+    query = "SELECT COUNT(STATUS) FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID AND STATUS = 'pass~~' OR STATUS='LATE' OR STATUS='FAIL'; "
+    cursor.execute(query)
+    data7=(cursor.fetchall())
+
+    #튜터>출결현황그래프>pass %
+    query = "SELECT COUNT(STATUS)/data7 FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO WHERE TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.CLASS_ID=CLASS_INFO.CLASS_ID AND STATUS = 'pass~~'; "
+    cursor.execute(query)
+    data8=(cursor.fetchall())
 
     datalist=[]       
     for row in data:
@@ -60,24 +69,34 @@ def tutor_lecture():
 
     for row in data4:   
         if row :        #튜터마이페이지 > 출결현황(출석)
-          dic={'COUNT(STATUS)':row[0]}
-          datalist.append(dic)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
 
     for row in data5:  
         if row :        #튜터마이페이지 > 출결현황(지각)
-          dic={'COUNT(STATUS)':row[0]}
-          datalist.append(dic)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
 
     for row in data6:  
         if row :        #튜터마이페이지 > 출결현황(결석)
-          dic={'COUNT(STATUS)':row[0]}
-          datalist.append(dic)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
+
+    for row in data7:  
+        if row :        #튜터마이페이지 > 출결현황(총인원)
+            dic={'COUNT(STATUS)':row[0]}
+            datalist.append(dic)
+
+    for row in data8:  
+        if row :        #튜터마이페이지 > 출결현황(출석퍼센트)
+            dic={'COUNT(STATUS)/data7':row[0]}
+            datalist.append(dic)
 
     cursor.close()
     db.close()
     return json.dumps(datalist)
 
-@app.route("/tutee_mypage",methods=["POST","GET"])
+@app.route("/tuteeMypage",methods=["POST","GET"])
 def tutee_lecture():
     db = pymysql.connect(host='127.0.0.1',
         port=3306,
