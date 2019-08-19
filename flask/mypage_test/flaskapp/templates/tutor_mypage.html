@@ -20,7 +20,21 @@
   <script src='../static/packages/daygrid/main.js'></script>
   <link href="../static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+  <script src="../static/vendor/jquery/jquery.min.js"></script>
+  <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
+  <!-- Core plugin JavaScript-->
+  <script src="../static/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="../static/js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="../static/vendor/chart.js/Chart.min.js"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="../static/js/demo/chart-area-demo.js"></script>
+  <script src="../static/js/demo/chart-pie-demo.js"></script>
   <!-- Custom styles for this template-->
   <link href="../static/css/sb-admin-2.css" rel="stylesheet">
 
@@ -96,11 +110,27 @@
           <span>내 강의 리스트</span>
         </a>
         <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
+          <div class="bg-white py-2 collapse-inner rounded" id="mylist">
             <h6 class="collapse-header">현재 개설된 강의</h6>
-            <a class="collapse-item" href="login.html">네트워크 보안</a>
-            <a class="collapse-item" href="register.html">컴퓨터 포렌식</a>
-            <a class="collapse-item" href="forgot-password.html">네트워크 실무</a>
+            <a href="#" title="hidden" hidden="true">NONE</a>
+            <script>
+            $(function(){
+              $.ajax({
+                url:"http://192.168.88.139:5000/tutorMypage",
+                dataType:"json",
+                method:'POST',
+                success : function(json){
+                  $.each(json,function(index,dic){
+                  var addA = document.createElement('a');
+                  addA.className = 'collapse-item'
+                  addA.href = `http://192.168.88.139:5000/tutorMypage?class_id=${dic.class_id}`
+                  addA.innerText = `${dic.class_name}`
+                      });
+                    }
+                  });
+                })
+            </script>
+            <a class="collapse-item" name="class_name" href="http://192.168.88.139:5000/tutorMypage?class_id=1">네트워크 보안</a>
           </div>
         </div>
       </li>
@@ -132,37 +162,17 @@
           </button>
 
           <!-- Topbar Search -->
-          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-            <div class="input-group">
-              <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-              <div class="input-group-append">
-                <button class="btn btn-primary" type="button">
-                  <i class="fas fa-search fa-sm"></i>
-                </button>
-              </div>
-            </div>
-          </form>
+          <h1 class="h3 mb-0 text-gray-800" name="class_name"> 강의 이름 / 분반</h1>
 
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
 
             <!-- Nav Item - Search Dropdown (Visible Only XS) -->
             <li class="nav-item dropdown no-arrow d-sm-none">
-              <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-search fa-fw"></i>
-              </a>
+
               <!-- Dropdown - Messages -->
               <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
-                <form class="form-inline mr-auto w-100 navbar-search">
-                  <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                    <div class="input-group-append">
-                      <button class="btn btn-primary" type="button">
-                        <i class="fas fa-search fa-sm"></i>
-                      </button>
-                    </div>
-                  </div>
-                </form>
+
               </div>
             </li>
 
@@ -195,9 +205,7 @@
                 <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
               </div>
             </li>
-
             <div class="topbar-divider d-none d-sm-block"></div>
-
             <!-- Nav Item - User Information -->
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -211,9 +219,7 @@
                 </a>
               </div>
             </li>
-
           </ul>
-
         </nav>
         <!-- End of Topbar -->
 
@@ -221,10 +227,6 @@
         <div class="container-fluid">
 
           <!-- Page Heading -->
-          <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">강의 이름 / 분반</h1>
-            <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
-          </div>
 
           <!-- Content Row -->
 
@@ -422,25 +424,7 @@
                     calendar.render();
                   });
                 </script>
-
                 <div id="calendar"></div>
-                <script>
-                  $(function(){
-                    $.ajax({
-                      url:"http://192.168.88.139:5000/tutorMypage",
-                      dataType:"json",
-                      method:'POST',
-                      success : function(json){
-                        $.each(json,function(index,dic){
-                          var addA = '<a class="collapse-item" href="http://192.168.88.139:5000/tutorMypage?class_id='+dic.class_id+'">'+dic.class_name+'</a>';
-                          var startadd = $('a[hidden]');
-                          $(startadd).after(addA);
-                        });
-                      }
-                    });
-                  })
-                  </script>
-              
               </div>
             </div>
           </div>
@@ -490,21 +474,6 @@
   </div>
 
   <!-- Bootstrap core JavaScript-->
-  <script src="../static/vendor/jquery/jquery.min.js"></script>
-  <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Core plugin JavaScript-->
-  <script src="../static/vendor/jquery-easing/jquery.easing.min.js"></script>
-
-  <!-- Custom scripts for all pages-->
-  <script src="../static/js/sb-admin-2.min.js"></script>
-
-  <!-- Page level plugins -->
-  <script src="../static/vendor/chart.js/Chart.min.js"></script>
-
-  <!-- Page level custom scripts -->
-  <script src="../static/js/demo/chart-area-demo.js"></script>
-  <script src="../static/js/demo/chart-pie-demo.js"></script>
 
 </body>
 

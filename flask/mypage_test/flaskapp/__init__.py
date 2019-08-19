@@ -5,14 +5,23 @@ import pymysql,json, hashlib
 app=Flask(__name__)
 app.debug=True
 app.secret_key("temporary string")
+
 @app.before_request
 def befor_request():
     session.permanent=True
     app.permanent_session_lifetime=timedelta(minutes=30)
 
-@app.route("/tutorMypage",methods=["POST","GET"])
-#_튜터>강의목록
+@app.route("/")
+@app.route("/<error>")
+def index(error=None):
+  return'%s' %error
+@app.route("/tutorMypage")
 def tutorMypage():
+  return render_template('tutor_mypage.html')
+
+@app.route("/tutorMypageProcess",methods=["POST","GET"])
+#_튜터>강의목록
+def tutorMypageProcess():
     if 'username' in session:
         result = '%s'%escape (session['username'])
         db = pymysql.connect(host='127.0.0.1',
@@ -54,13 +63,13 @@ def tutorMypage():
             loaded_r = json.loads(r)
             cursor.close()
             db.close()
-            return loaded_r
+            return redirect(url_for("index",error=loaded_r))
 
     else: #로그인 안됐을때 접근제한 처리
         error = {'error':'error!error!error!'}
         r = json.dumps(error)
         loaded_r = json.loads(r)
-        return loaded_r
+        return redirect(url_for("login",error=loaded_r))
 
 @app.route("/tutorStudent",methods=["POST","GET"])
 #_튜터>학생목록
