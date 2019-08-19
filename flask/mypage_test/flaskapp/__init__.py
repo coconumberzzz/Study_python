@@ -1,8 +1,15 @@
 from flask import Flask, render_template,request,url_for, redirect,session,escape
-import pymysql,json
+from datetime import timedelta
+import pymysql,json, hashlib
 
 app=Flask(__name__)
 app.debug=True
+
+@app.before_request
+def befor_request():
+    session.permanent=True
+    app.permanent_session_lifetime=timedelta(minutes=30)
+
 @app.route("/tutorMypage",methods=["POST","GET"])
 #_튜터>강의목록
 def tutorMypage():
@@ -21,14 +28,13 @@ def tutorMypage():
         key = (cursor.fetchall())
         
         for row in key :
-            if row :
-                key = row[0]
+            key = row[0]
 
         if key:
             #튜터>강의목록
-            query = "SELECT CLASS_NAME FROM CLASS_INFO WHEERE TUTOR_ID='1';"
-            #value=(key)
-            cursor.execute(query)
+            query = "SELECT CLASS_NAME,CLASS_ID FROM CLASS_INFO WHERE TUTOR_ID=%s;"
+            value=(key)
+            cursor.execute(query,value)
             data=(cursor.fetchall())
 
             datalist=[]
@@ -56,7 +62,6 @@ def tutorMypage():
         loaded_r = json.loads(r)
         return loaded_r
 
-
 @app.route("/tutorStudent",methods=["POST","GET"])
 #_튜터>학생목록
 def tutorStudent():
@@ -80,8 +85,9 @@ def tutorStudent():
 
         if key:
           #튜터>학생목록
-            query="SELECT TUTEE_INFO.NAME,ENEGAGEMENT,STATUS FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO,TUTEE_INFO WHERE CLASS_INFO.CLASS_ID='1' AND CLASS_INFO.TUTOR_ID='1'AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.TUTEE_ID=TUTEE_INFO.TUTEE_ID"
-            #value=(CALSS_ID받은거,key)
+            query="SELECT TUTEE_INFO.NAME,ENEGAGEMENT,STATUS FROM ATTENDANCE,TUTEE_CLASS_MAPPING,CLASS_INFO,TUTEE_INFO WHERE CLASS_INFO.CLASS_ID=%s AND CLASS_INFO.TUTOR_ID=%s AND TUTEE_CLASS_MAPPING.MAPPING_ID=ATTENDANCE.MAPPING_ID AND TUTEE_CLASS_MAPPING.TUTEE_ID=TUTEE_INFO.TUTEE_ID"
+            value(key)
+            #value=(class_id,key)
             cursor.execute(query)
             data2=(cursor.fetchall())
             
@@ -128,12 +134,14 @@ def tutorCalendar():
     query="SELECT CLASS_INFO.CLASS_NAME,CLASS_INFO.CLASS_TIME,CLASS_INFO.CLASS_ROOM,ATTENDANCE.DATE FROM CLASS_INFO,ATTENDANCE,TUTOR_INFO,TUTEE_CLASS_MAPPING WHERE ATTENDANCE.MAPPING_ID = TUTEE_CLASS_MAPPING.MAPPING_ID AND CLASS_INFO.CLASS_ID=TUTEE_CLASS_MAPPING.CLASS_ID AND CLASS_INFO.TUTOR_ID=TUTOR_INFO.TUTOR_ID"
     cursor.execute(query)
     data3=(cursor.fetchall())
+
     datalist=[]
     for row in data3:
         if row :        #튜터마이페이지 > 캘린더
             dic={'CLASS_INFO.CLASS_NAME':row[0:],'CLASS_INFO.CLASS_TIME':row[0:],'CLASS_INFO.CLASS_ROOM':row[0:],'ATTENDANCE.DATE':row[0:]}
             datalist.append(dic)
-    i = json.dumps(dic)
+    DATA={'CLASS_NAME,TIME,ROOM,DATE':'%s'%datalist}
+    i = json.dumps(DATA)
     loaded_i = json.loads(i)
     cursor.close()
     db.close()
@@ -245,7 +253,7 @@ def tutorOgraph():
     return loaded_i
 
 @app.route("/tutorLgraph",methods=["POST","GET"])
-#_튜터>출결현황그래프(각 인원수)
+#_튜터>평균그래프(각 인원수)
 def tutorLgraph():
     db = pymysql.connect(host='127.0.0.1',
         port=3306,
@@ -276,6 +284,99 @@ def tutorLgraph():
     cursor.close()
     db.close()
     return loaded_i
+
+@app.route("/login")
+@app.route("/login/<error>")
+def login(error=None):
+    if 'username' in session:
+        return redirect(url_for('main'))
+    else:
+        return render_template("login.html",error=error)
+
+@app.route("/loginProcess", methods=["POST"])
+def loginProcess():
+    if request.method=="POST":
+        if request.form.get('email', None) == None:
+            error={"error":"Fill in the blanks"}
+            r=json.dumps(error)
+            loaded_r=json.loads(r)
+            return redirect(url_for('login', error=loaded_r))
+        elif request.form.get('password', None) == None:
+            error={"error":"Fill in the blanks"}
+            r=json.dumps(error)
+            loaded_r=json.loads(r)
+            return redirect(url_for('login', error=loaded_r))
+        elif request.form.get('user', None) == None:
+            error={"error":"Fill in the blanks"}
+            r=json.dumps(error)
+            loaded_r=json.loads(r)
+            return redirect(url_for('login', error=loaded_r))
+        else:
+            email=request.form["email"]
+            pw=request.form["password"]
+            pw=pw.encode()
+            hash_pw=hashlib.sha256(pw).hexdigest()
+            user=request.form['user']
+
+            if user=='tutee':
+                db=pymysql.connect(host='127.0.0.1', port=3306, user='admin', password='0507', db='attendance', charset='utf8')
+                cursor=db.cursor()
+
+                query="SELECT NAME FROM TUTEE_INFO WHERE EMAIL=%s AND PASSWORD =%s;"
+                value=(email, hash_pw)
+            
+                cursor.execute(query, value)
+                data=(cursor.fetchall())
+            
+                cursor.close()
+                db.close()
+                
+                for row in data:
+                    data=row[0]
+                
+                if data:
+                    session['username']=request.form['email']
+                    return redirect(url_for('sessionCheck'))
+                else:
+                    error={"error":"You have entered a wrong email or password"}
+                    r = json.dumps(error)
+                    loaded_r = json.loads(r)
+                    return redirect(url_for('login',error=loaded_r))
+
+            elif user=='tutor':
+                db=pymysql.connect(host='127.0.0.1', port=3306, user='admin', password='0507', db='attendance', charset='utf8')
+                cursor=db.cursor()
+    
+                query="SELECT NAME FROM TUTOR_INFO WHERE EMAIL=%s AND PASSWORD =%s;"
+                value=(email, hash_pw)
+
+                cursor.execute(query, value)
+                data=(cursor.fetchall())
+
+                cursor.close()
+                db.close()
+
+                for row in data:
+                    data=row[0]
+
+                if data:
+                    session['username']=request.form['email']
+                    return redirect(url_for('sessionCheck'))
+                else:
+                    error={"error":"You have entered a wrong email or password"}
+                    r = json.dumps(error)
+                    loaded_r = json.loads(r)
+                    return redirect(url_for('login',error=loaded_r))
+
+@app.route("/sessionCheck")
+def sessionCheck():
+    if 'username' in session:
+        return redirect(url_for('main'))
+
+    else:
+        return redirect(url_for('login'))
+
+
 
 @app.route("/tuteeMypage",methods=["POST","GET"])
 def tutee_lecture():

@@ -12,11 +12,11 @@
   <title>출석지키미</title>
 
   <!-- Custom fonts for this template-->
-  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="../static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
   <!-- Custom styles for this template-->
-  <link href="css/sb-admin-2.css" rel="stylesheet">
+  <link href="../static/css/sb-admin-2.css" rel="stylesheet">
 
 </head>
 
@@ -33,7 +33,7 @@
         <div class="sidebar-brand-icon rotate-n-15">
           <i class="fas fa-laugh-wink"></i>
         </div>
-        <div class="sidebar-brand-text mx-3">출석지키미</div>
+        <div class="sidebar-brand-text mx-3">출석지킴이</div>
       </a>
 
       <!-- Divider -->
@@ -203,7 +203,7 @@
               <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
                   <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Logout
+                  로그아웃
                 </a>
               </div>
             </li>
@@ -221,60 +221,62 @@
             <div class="card shadow mb-4">
               <!-- Card Header - Dropdown -->
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">강의 설립시 등록 값</h6>
+                <h6 class="m-0 font-weight-bold text-primary">강의 정보</h6>
                 <div class="dropdown no-arrow">
                 </div>
               </div>
               <!-- Card Body -->
-              <div class="card-body">
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <input type="text" class="form-control form-control-user" name="studtname" placeholder="강의 이름">
-                  </div>
-                  <div class="col-sm-6">
-                    <input type="text" class="form-control form-control-user" name="tutorname" placeholder="강의자 이름">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <input type="text" class="form-control form-control-user" name="day"  placeholder="개설 요일">
-                </div>
-                <div class="form-group">
-                  <input type="text" class="form-control form-control-user" name="time"  placeholder="개설 시간" text="width=100%">
-                </div>
-                <div class="form-group">
-                  <input type="text" class="form-control form-control-user" name="classexplane" placeholder="강의 설명" style="height:500px">
-                </div>
-                <div class="form-group">
-                  <input type="text" class="form-control form-control-user" name="max-head"  placeholder="최대 수강 인원">
-                </div>
+              <form action="http://52.231.10.217/setLectureProcess" method="post">
+                <div class="card-body">
                   <div class="form-group row">
                     <div class="col-sm-6 mb-3 mb-sm-0">
-                      <input type="text" class="form-control form-control-user" name="lateper" placeholder="지각 기준">
+                      <input type="text" class="form-control form-control-user" name="class_name" placeholder="강의 이름">
                     </div>
                     <div class="col-sm-6">
-                      <input type="text" class="form-control form-control-user" name="absentper" placeholder="결석 기준">
+                      <input type="text" class="form-control form-control-user" name="tutor_name" placeholder="튜터 이름">
                     </div>
                   </div>
+                  <div class="form-group">
+                    <input type="text" class="form-control form-control-user" name="class_date"  placeholder="강의 요일">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" class="form-control form-control-user" name="class_time"  placeholder="강의 시간">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" class="form-control form-control-user" name="class_room"  placeholder="강의 장소">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" class="form-control form-control-user" name="class_describe" placeholder="강의 설명" style="height:250px">
+                  </div>
+                  <div class="form-group">
+                    <input type="text" class="form-control form-control-user" name="limit_entry"  placeholder="최대 수강 인원">
+                  </div>
+                    <div class="form-group row">
+                      <div class="col-sm-6 mb-3 mb-sm-0">
+                        <input type="text" class="form-control form-control-user" name="limit_late" placeholder="지각 참여도 기준(%)">
+                      </div>
+                      <div class="col-sm-6">
+                        <input type="text" class="form-control form-control-user" name="limit_fail" placeholder="결석 참여도 기준(%)">
+                      </div>
+                    </div>
                 </div>
                 <div class="card-body">
                   <div class="button">
-                    <a href="index.html" class="btn btn-primary btn-user btn-block" style="width:66.666%;margin-left:15%;">개설!</a>
+                    <input type="submit" name="submit" value="강의 개설" class="btn btn-primary btn-user btn-block" style="width:66.666%; margin-left:15%;">
                   </div>
                 </div>
+                </form>
               </div>
             </div>
           </div>
-
         <!-- /.container-fluid -->
-
       </div>
       <!-- End of Main Content -->
-
       <!-- Footer -->
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span>Team The 출석지키미™</span>
+            <span>Team The 출석지킴이™</span>
           </div>
         </div>
       </footer>
@@ -296,29 +298,29 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <h5 class="modal-title" id="exampleModalLabel">로그아웃</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+        <div class="modal-body"> 로그아웃 하시겠습니까?</div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-primary" href="http://52.231.10.217/logout">로그아웃</a>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Bootstrap core JavaScript-->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../static/vendor/jquery/jquery.min.js"></script>
+  <script src="../static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
   <!-- Core plugin JavaScript-->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="../static/vendor/jquery-easing/jquery.easing.min.js"></script>
 
   <!-- Custom scripts for all pages-->
-  <script src="js/sb-admin-2.min.js"></script>
+  <script src="../static/js/sb-admin-2.min.js"></script>
 
 </body>
 
