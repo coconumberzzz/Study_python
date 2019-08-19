@@ -422,7 +422,25 @@
                     calendar.render();
                   });
                 </script>
+
                 <div id="calendar"></div>
+                <script>
+                  $(function(){
+                    $.ajax({
+                      url:"http://192.168.88.139:5000/tutorMypage",
+                      dataType:"json",
+                      method:'POST',
+                      success : function(json){
+                        $.each(json,function(index,dic){
+                          var addA = '<a class="collapse-item" href="http://192.168.88.139:5000/tutorMypage?class_id='+dic.class_id+'">'+dic.class_name+'</a>';
+                          var startadd = $('a[hidden]');
+                          $(startadd).after(addA);
+                        });
+                      }
+                    });
+                  })
+                  </script>
+              
               </div>
             </div>
           </div>
