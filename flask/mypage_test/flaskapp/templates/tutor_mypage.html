@@ -18,6 +18,7 @@
   <script src='../static/packages/core/main.js'></script>
   <script src='../static/packages/interaction/main.js'></script>
   <script src='../static/packages/daygrid/main.js'></script>
+  <link href="../static/css/sb-admin-2.css" rel="stylesheet">
   <link href="../static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
   <script src="../static/vendor/jquery/jquery.min.js"></script>
@@ -30,14 +31,13 @@
   <script src="../static/js/sb-admin-2.min.js"></script>
 
   <!-- Page level plugins -->
-  <script src="../static/vendor/chart.js/Chart.min.js"></script>
-
   <!-- Page level custom scripts -->
-  <script src="../static/js/demo/chart-area-demo.js"></script>
-  <script src="../static/js/demo/chart-pie-demo.js"></script>
-  <!-- Custom styles for this template-->
-  <link href="../static/css/sb-admin-2.css" rel="stylesheet">
 
+  <!-- Custom styles for this template-->
+  <script>
+    var lect_id = 1;
+    var student_id =1;
+  </script>
 </head>
 
 <body id="page-top">
@@ -74,34 +74,6 @@
         Attendance Manage
       </div>
 
-      <!-- Nav Item - Pages Collapse Menu -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-          <i class="fas fa-fw fa-cog"></i>
-          <span>강의 관리</span>
-        </a>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="buttons.html">강의계획서 수정</a>
-            <a class="collapse-item" href="cards.html">출석 기준량 수정</a>
-          </div>
-        </div>
-      </li>
-
-      <!-- Nav Item - Utilities Collapse Menu -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-wrench"></i>
-          <span>학생 관리</span>
-        </a>
-        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="utilities-color.html">수강신청 학생 승인</a>
-            <a class="collapse-item" href="utilities-border.html">수강중인 학생 리스트</a>
-          </div>
-        </div>
-      </li>
-
       <!-- Divider -->
       <!-- Nav Item - Pages Collapse Menu -->
       <li class="nav-item">
@@ -112,25 +84,34 @@
         <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded" id="mylist">
             <h6 class="collapse-header">현재 개설된 강의</h6>
-            <a href="#" title="hidden" hidden="true">NONE</a>
+            <a href="#" class="start" title="hidden" hidden="true">NONE</a>
             <script>
             $(function(){
               $.ajax({
-                url:"http://192.168.88.139:5000/tutorMypage",
+                url:"http://192.168.88.140:5000/tutorMypageProcess",
                 dataType:"json",
-                method:'POST',
+                method:'GET',
                 success : function(json){
-                  $.each(json,function(index,dic){
-                  var addA = document.createElement('a');
-                  addA.className = 'collapse-item'
-                  addA.href = `http://192.168.88.139:5000/tutorMypage?class_id=${dic.class_id}`
-                  addA.innerText = `${dic.class_name}`
-                      });
+			               var json_length=Object.keys(json['class_info']).length;
+			          for(var i=0; i < json_length; i++){
+				              var addA= document.createElement('a');
+				              addA.className = 'collapse-item'
+                      addA.href = `http://192.168.88.140:5000/tutorMypage?class_id=${json['class_info'][i]['ID']}`
+					            addA.innerText = `${json['class_info'][i]['NAME']}`
+				              $(".start").after(addA);
+			                 }
+                       lect_id = `${json['class_info'][0]['ID']}`;
                     }
                   });
                 })
             </script>
-            <a class="collapse-item" name="class_name" href="http://192.168.88.139:5000/tutorMypage?class_id=1">네트워크 보안</a>
+            <script>
+              $(function(){
+                  $('.collapse-item').on('click','a',function(){
+                    lect_id = $('.class_id').val();
+                  })
+              });
+            </script>
           </div>
         </div>
       </li>
@@ -156,14 +137,24 @@
         <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-          <!-- Sidebar Toggle (Topbar) -->
-          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-            <i class="fa fa-bars"></i>
-          </button>
 
           <!-- Topbar Search -->
-          <h1 class="h3 mb-0 text-gray-800" name="class_name"> 강의 이름 / 분반</h1>
-
+          <h1 class="h3 mb-0 text-gray-800" id="Class_Name" name="class_name"></h1>
+          <script>
+            $(function(){
+              $.ajax({
+                url:'/tutorInfoProcess',
+                method:'GET',
+                dataType:'json',
+                data:{
+                  class_id : lect_id
+                }
+              })
+              .done(function(json){
+                $('#Class_Name').after(`${json["class_info"][0]['class_name']}`)
+              })
+            })
+          </script>
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
 
@@ -244,6 +235,159 @@
                 <!-- Card Body -->
                 <div class="card-body">
                   <div class="chart-area">
+                    <script>
+                    // Set new default font family and font color to mimic Bootstrap's default styling
+                    $(function(){
+                      Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+                      Chart.defaults.global.defaultFontColor = '#858796';
+                      function number_format(number, decimals, dec_point, thousands_sep) {
+                        // *     example: number_format(1234.56, 2, ',', ' ');
+                        // *     return: '1 234,56'
+                        number = (number + '').replace(',', '').replace(' ', '');
+                        var n = !isFinite(+number) ? 0 : +number,
+                          prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+                          sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+                          dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+                          s = '',
+                          toFixedFix = function(n, prec) {
+                            var k = Math.pow(10, prec);
+                            return '' + Math.round(n * k) / k;
+                          };
+                        // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+                        s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
+                        if (s[0].length > 3) {
+                          s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+                        }
+                        if ((s[1] || '').length < prec) {
+                          s[1] = s[1] || '';
+                          s[1] += new Array(prec - s[1].length + 1).join('0');
+                        }
+                        return s.join(dec);
+                      }
+                    })
+                    // Area Chart Example
+                    $(function(){
+                      $.ajax({
+                        url:'https://192.168.88.140:5000/tutorLgraphProcess',
+                        dataType:'json',
+                        method:'GET',
+                        data:{
+                          class_id : lect_id,
+                          tutee_id : student_id
+                        },
+                        success : function(json){
+                         var ctx = document.getElementById("myAreaChart");
+       var time_length = Object.keys(json['student_graph'][0]['class_time']).length;
+       var data_length = Object.keys(json['student_graph'][0]['pass_time']).length;
+       var times = [];
+       var datas = [];
+       for(var i=0; i < time_length; i++) {
+         times.push(`${json['student_graph'][0]['class_time'][i]}`);
+         datas.push(`${json['student_graph'][0]['pass_time'][i]}`);
+         }
+                         var myLineChart = new Chart(ctx, {
+                               type: 'line',
+                               data:{
+                               labels: times,
+                               datasets: [{
+                               label: "출석률",
+                               lineTension: 0.3,
+                               backgroundColor: "rgba(78, 115, 223, 0.05)",
+                               borderColor: "rgba(78, 115, 223, 1)",
+                               pointRadius: 2,
+                               pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                               pointBorderColor: "rgba(78, 115, 223, 1)",
+                               pointHoverRadius: 2,
+                               pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                               pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                               pointHitRadius: 10,
+                               pointBorderWidth: 2,
+                               data: datas,
+                             }],
+                           },
+                           options: {
+                             maintainAspectRatio: false,
+                             layout: {
+                               padding: {
+                                 left: 10,
+                                 right: 25,
+                                 top: 25,
+                                 bottom: 0
+                               }
+                             },
+                             scales: {
+                               xAxes: [{
+                                 time: {
+                                   unit: 'time'
+                                 },
+                                 gridLines: {
+                                   display: false,
+                                   drawBorder: false
+                                 },
+                                 ticks: {
+                                   minTicksLimit: 5,
+                                   maxTicksLimit: 14
+                                 }
+                               }],
+                               yAxes: [{
+                                 ticks: {
+                                   maxTicksLimit: 3,
+                                   paddingBottem:10,
+                                   // Include a dollar sign in the ticks
+                                   callback: function(value, index, values) {
+                                     if(value == 0)
+                                       return '시작!';
+                                     else if (value == 1)
+                                       return '부재중';
+                                     else if(value == 2)
+                                       return '자리있음';
+                                   }
+                                 },
+                                 gridLines: {
+                                   color: "rgb(234, 236, 244)",
+                                   zeroLineColor: "rgb(234, 236, 244)",
+                                   drawBorder: false,
+                                   borderDash: [2],
+                                   zeroLineBorderDash: [2]
+                                 }
+                               }],
+                             },
+                             legend: {
+                               display: false
+                             },
+                             tooltips: {
+                               backgroundColor: "rgb(255,255,255)",
+                               bodyFontColor: "#858796",
+                               titleMarginBottom: 10,
+                               titleFontColor: '#6e707e',
+                               titleFontSize: 14,
+                               borderColor: '#dddfeb',
+                               borderWidth: 1,
+                               xPadding: 15,
+                               yPadding: 15,
+                               displayColors: false,
+                               intersect: false,
+                               mode: 'index',
+                               caretPadding: 10,
+                             }
+                           }
+                         });
+                       }
+                     });
+                   })
+                    </script>
+                    <script>
+
+                    </script>
+                <!--    <script>
+                      $('.student_list').on('click','tr',function(){
+                        $.ajax({
+                          url:'http://192.168.88.140:5000/tutorLgraph',
+                          method:'GET',
+                          dataType:'',
+                        })
+                      })
+                    </script> -->
                     <canvas id="myAreaChart"></canvas>
                   </div>
                 </div>
@@ -254,70 +398,48 @@
                 <div class="card-header py-3">
                   <h6 class="m-0 font-weight-bold text-primary">학생 리스트</h6>
                 </div>
+                <script>
+                  $(function(){
+                        $.ajax({
+                          dataType:'json',
+                          method:'GET',
+                          url:'http://192.168.88.140:5000/tutorStudentProcess',
+                          data:{class_id:lect_id},
+                          success: function(json){
+                            var num = Object.keys(json["studentList"]).length;
+                            for(var i=0;i<num;i++){
+                              var addTR = document.createElement('tr');
+                              var addTDnum = document.createElement('td');
+                              var addTDimg = document.createElement('td');
+                              var addTDname = document.createElement('td');
+                              var addTDenga = document.createElement('td');
+                              var addTDstatus = document.createElement('td');
+			      addTDnum = `${i+1}`;
+			      addTDimg = `<img style="width:20px;height:20px" src="../static/img/user.png"/>`;
+			      addTDname = `${json["studentList"][i]['tutee_name']}`;
+			      addTDenga = `${json["studentList"][i]['engagement']}`;
+			      addTDstatus = `${json["studentList"][i]['status']}`;
+			      $('#tutee_list > tbody:last').append(
+				      '<tr><td>' + addTDnum + '</td>' +
+				      '<td>' + addTDimg + '</td>' +
+				      '<td>' + addTDname + '</td>' +
+				      '<td>' + addTDenga + '</td>' +
+				      '<td>' + addTDstatus + '</td>');
+                            }
+                          }
+                        });
+                      })
+                    </script>
                 <div class="card-body">
                   <div class="overflow_f">
-                    <table class="student_list">
+                    <table class="student_list" id="tutee_list">
                       <th scope="row">번호</th>
                       <th scope="row">사진</th>
                       <th scope="row">이름</th>
                       <th scope="row">출석률</th>
                       <th scope="row">출석결과</th>
-                        <tr>
-                          <td>1</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>김참새</td>
-                          <td>0%</td>
-                          <td>결석</td>
-                        </tr>
-                        <tr>
-                          <td>2</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>빛대동</td>
-                          <td>86.5%</td>
-                          <td>출석</td>
-                        </tr>
-                        <tr>
-                          <td>3</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>강실세</td>
-                          <td>90.4%</td>
-                          <td>출석</td>
-                        </tr>
-                        <tr>
-                          <td>4</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>박거북</td>
-                          <td>80.1%</td>
-                          <td>출석</td>
-                        </tr>
-                        <tr>
-                          <td>5</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>장래기</td>
-                          <td>100%</td>
-                          <td>출석</td>
-                        </tr>
-                        <tr>
-                          <td>6</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>임꼰머</td>
-                          <td>90%</td>
-                          <td>출석</td>
-                        </tr>
-                        <tr>
-                          <td>7</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>김애치</td>
-                          <td>0.2%</td>
-                          <td>결석</td>
-                        </tr>
-                        <tr>
-                          <td>8</td>
-                          <td><img src="../static/img/user.png" aria-hidden="true" style="width:20px;height:20px"></img></td>
-                          <td>전밍구</td>
-                          <td>50.001%</td>
-                          <td>출석</td>
-                        </tr>
+                        <tbody>
+                        </tbody>
                       </table>
                     </div>
                 </div>
@@ -350,6 +472,53 @@
                 <!-- Card Body -->
                 <div class="card-body">
                   <div class="chart-pie pt-4 pb-2">
+                    <script>
+         $(function(){
+         Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+                   Chart.defaults.global.defaultFontColor = '#858796';
+         })
+                   // Pie Chart Example
+                   $(function(){
+                     $.ajax({
+                       url:'http://192.168.88.140:5000/tutorOgraphProcess',
+                       method:'GET',
+                       dataType:'json',
+                       data:{class_id:1},
+                       })
+                       .done(function(json){
+                         var datas = [];
+                         datas.push(`${json['my_graph'][4]['pass%']}`);
+			                   datas.push(`${json['my_graph'][5]['late%']}`);
+              		     	 datas.push(`${json['my_graph'][6]['fail%']}`);
+                       var ctx = document.getElementById("myPieChart");
+                       var myPieChart = new Chart(ctx, {
+                         type: 'doughnut',
+                         data: {
+                           labels: ["출석", "지각", "결석"],
+                           datasets: [{
+                             data: datas,
+                             backgroundColor: ['#1cc88a', '#eccc68', '#ff6b81'],
+                             hoverBackgroundColor: ['#17a673', '#ffa502', '#ff4757'],
+                             hoverBorderColor: "rgba(234, 236, 244, 1)",
+                           }],
+                         },
+                         options: {
+                           maintainAspectRatio: false,
+                           tooltips: {
+                             backgroundColor: "rgb(255,255,255)",
+                             bodyFontColor: "#858796",
+                             borderColor: '#dddfeb',
+                             borderWidth: 1,
+                             xPadding: 15,
+                             yPadding: 15,
+                             displayColors: false,
+                           },
+                           cutoutPercentage: 80,
+                         },
+                       });
+                     });
+                   })
+                   </script>
                     <canvas id="myPieChart"></canvas>
                   </div>
                   <div class="mt-4 text-center small">
@@ -365,35 +534,43 @@
                   </div>
                 </div>
                 <div class="pie_table_">
-                  <table class="pie_table">
+                  <script>
+                    $(function(){
+                      $.ajax({
+                        url:'http://192.168.88.140:5000/tutorOgraphProcess',
+                        dataType:'json',
+                        method:'GET',
+                        data:{class_id:1},
+                      })
+                      .done(function(json){
+                          $('#pie > tbody:last').append(
+                              '<tr><th>' + '출석' + '</th>' +
+                                '<td>' + `${json["my_graph"][0]["pass"]}` + '</td>' +
+                                '<td>' + `${json["my_graph"][4]["pass%"]}` + '</td></tr>');
+                          $('#pie > tbody:last').append(
+                              '<tr><th>' + '지각' + '</th>' +
+                                '<td>' + `${json["my_graph"][1]["late"]}`+ '</td>' +
+                                '<td>' + `${json["my_graph"][5]["late%"]}` + '</td></tr>');
+                          $('#pie > tbody:last').append(
+                              '<tr><th>' + '결석' + '</th>' +
+                                '<td>' + `${json["my_graph"][2]["fail"]}` + '</td>' +
+                                '<td>' + `${json["my_graph"][6]["fail%"]}` + '</td></tr>');
+                          $('#pie > tbody:last').append(
+                              '<tr><th>' + '총 인원' + '</th>' +
+                                '<td>' + `${json["my_graph"][3]["all"]}` + '</td>' +
+                                '<td>' + `${json["my_graph"][7]["all%"]}` + '</td></tr>');
+                        })
+                      })
+                  </script>
+                  <table class="pie_table" id="pie">
                     <thead>
                       <tr>
                         <td></td>
-                        <td>인원</td>
-                        <td>퍼센트(%)</td>
+                        <th>인원</th>
+                        <th>퍼센트(%)</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <th>출석</th>
-                        <td>50</td>
-                        <td>50%</td>
-                      </tr>
-                      <tr>
-                        <th>지각</th>
-                        <td>15</td>
-                        <td>15%</td>
-                      </tr>
-                      <tr>
-                        <th>결석</th>
-                        <td>35</td>
-                        <td>35%</td>
-                      </tr>
-                      <tr>
-                        <th>총 인원</th>
-                        <td>100</td>
-                        <td>100%</td>
-                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -474,6 +651,9 @@
   </div>
 
   <!-- Bootstrap core JavaScript-->
+  <script src="../static/vendor/chart.js/Chart.min.js"></script>
+
+  <!-- Page level custom scripts -->
 
 </body>
 
